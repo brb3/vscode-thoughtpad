@@ -13,8 +13,13 @@ export class ThoughtPad {
 	tree: ThoughtsDataProvider;
 	thoughts: DatedThoughts[];
 
+	// Captures a Thought
+	// Opens a dialog for the user to enter a thought, then adds it to the data and calls writeThoughts()
 	async captureThought(): Promise<void> {
-		const message = await this.getThought("Thought to record");
+		const message = await vscode.window.showInputBox({
+			title: "Thought to record",
+			ignoreFocusOut: true,
+		});
 
 		if (message) {
 			let thought = {
@@ -41,48 +46,49 @@ export class ThoughtPad {
 		}
 	}
 
+	// Copies an entry (thought) message into the system clipboard.
 	async copyEntry(entry: any): Promise<void> {
-		this.thoughts.forEach((dt) => {
-			const index = dt.thoughts.findIndex((t) => {
-				return t.id === entry.id;
-			});
-			if (index >= 0) {
-				vscode.env.clipboard.writeText(dt.thoughts[index].message);
-			}
-		});
-	}
-
-	async deleteEntry(entry: any): Promise<void> {
-		vscode.window
-			.showInformationMessage("Are you sure you want to delete this entry?", ...["Yes", "No"])
-			.then((a) => {
-				if (a === "Yes") {
-					this.thoughts.forEach((dt, dti) => {
-						const index = dt.thoughts.findIndex((t) => {
-							return t.id === entry.id;
-						});
-						if (index >= 0) {
-							dt.thoughts.splice(index, 1);
-						}
-
-						// If removing this item reduces the size of dt to 0, remove it too
-						if (dt.thoughts.length === 0) {
-							this.thoughts.splice(dti, 1);
-						}
-					});
-
-					this.writeThoughts();
+		if (entry) {
+			this.thoughts.forEach((dt) => {
+				const index = dt.thoughts.findIndex((t) => {
+					return t.id === entry.id;
+				});
+				if (index >= 0) {
+					vscode.env.clipboard.writeText(dt.thoughts[index].message);
 				}
 			});
+		}
 	}
 
-	async getThought(title: string): Promise<string | undefined> {
-		return await vscode.window.showInputBox({
-			title,
-			ignoreFocusOut: true,
-		});
+	// Deletes an entry (thought) from the data and calls writeThoughts()
+	async deleteEntry(entry: any): Promise<void> {
+		if (entry) {
+			vscode.window
+				.showInformationMessage("Are you sure you want to delete this entry?", ...["Yes", "No"])
+				.then((a) => {
+					if (a === "Yes") {
+						this.thoughts.forEach((dt, dti) => {
+							const index = dt.thoughts.findIndex((t) => {
+								return t.id === entry.id;
+							});
+							if (index >= 0) {
+								dt.thoughts.splice(index, 1);
+							}
+
+							// If removing this item reduces the size of dt to 0, remove it too
+							if (dt.thoughts.length === 0) {
+								this.thoughts.splice(dti, 1);
+							}
+						});
+
+						this.writeThoughts();
+					}
+				});
+		}
 	}
 
+	// Finds the path of the Thoughts file.
+	// Notifies the user of an error if no Thoughts file is found.
 	getThoughtsFile(): string {
 		const config = vscode.workspace.getConfiguration("thoughtpad");
 		const tFC = config.get("thoughtsFile") as string | undefined;
@@ -95,12 +101,14 @@ export class ThoughtPad {
 		return path.resolve(tFC!);
 	}
 
+	// Loads the Thoughts into our data property.
 	loadThoughts(): DatedThoughts[] {
 		const data = readFileSync(this.getThoughtsFile());
 		const jsonData = JSON.parse(data.toString()) as ThoughtsFile;
 		return jsonData.dates;
 	}
 
+	// Writes the data into the Thoughts file
 	writeThoughts(): void {
 		let data = {
 			dates: this.thoughts,
