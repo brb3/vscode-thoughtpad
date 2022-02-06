@@ -10,15 +10,19 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:thoughtpad.thoughtAboutDay",
+        "onCommand:thoughtpad.captureThought",
 		"onView:thoughts-tree"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "thoughtpad.thoughtAboutDay",
-				"title": "Record thought about Today"
+				"command": "thoughtpad.captureThought",
+				"title": "Capture a Thought"
+			},
+			{
+				"command": "thoughtpad.copyEntry",
+				"title": "Copy"
 			},
 			{
 				"command": "thoughtpad.deleteEntry",
@@ -57,11 +61,27 @@
 		"menus": {
 			"view/item/context": [
 				{
+					"command": "thoughtpad.copyEntry",
+					"when": "view == thoughts-tree && viewItem == thoughtTreeItem"
+				},
+				{
 					"command": "thoughtpad.deleteEntry",
 					"when": "view == thoughts-tree && viewItem == thoughtTreeItem"
 				}
 			]
-		}
+		},
+		"keybindings": [
+			{
+				"command": "workbench.view.extension.thoughtpad-explorer",
+				"key": "ctrl+shift+a",
+				"mac": "cmd+shift+a"
+			},
+			{
+				"command": "thoughtpad.captureThought",
+				"key": "ctrl+k t",
+				"mac": "cmd+k t"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",

@@ -14,8 +14,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// register commands
 	context.subscriptions.push(
-		vscode.commands.registerCommand("thoughtpad.thoughtAboutDay", () => {
-			tp.recordThoughtOnDay();
+		vscode.commands.registerCommand("thoughtpad.captureThought", () => {
+			tp.captureThought();
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand("thoughtpad.copyEntry", (entry) => {
+			tp.copyEntry(entry);
 		})
 	);
 
