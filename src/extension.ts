@@ -2,12 +2,12 @@ import * as vscode from "vscode";
 import { ThoughtPad } from "./thoughtPad";
 import { ThoughtsDataProvider } from "./thoughtsDataProvider";
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	const tdp = new ThoughtsDataProvider();
-	const tp = new ThoughtPad(tdp);
+	const tp = new ThoughtPad(tdp, context);
 
 	// Seed the data provider
-	tdp.updateThoughts(tp.loadThoughts());
+	tdp.updateThoughts(await tp.loadThoughts());
 
 	// and register our TreeDataProvider
 	vscode.window.registerTreeDataProvider("thoughts-tree", tdp);

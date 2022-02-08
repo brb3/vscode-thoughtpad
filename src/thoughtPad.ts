@@ -1,17 +1,17 @@
-import { readFileSync, writeFileSync } from "fs";
 import * as vscode from "vscode";
-import path = require("path");
 import { ThoughtsDataProvider } from "./thoughtsDataProvider";
 import { DatedThoughts, Thought, ThoughtsFile } from "./interfaces";
 import { v4 as uuidv4 } from "uuid";
+import { TextEncoder } from "util";
 
 export class ThoughtPad {
-	constructor(treeView: ThoughtsDataProvider) {
+	constructor(treeView: ThoughtsDataProvider, context: vscode.ExtensionContext) {
+		this.storageDir = context.globalStorageUri;
 		this.tree = treeView;
-		this.thoughts = this.loadThoughts();
 	}
+	storageDir: vscode.Uri;
 	tree: ThoughtsDataProvider;
-	thoughts: DatedThoughts[];
+	thoughts = [] as DatedThoughts[];
 
 	// Captures a Thought
 	// Opens a dialog for the user to enter a thought, then adds it to the data and calls writeThoughts()
@@ -87,33 +87,41 @@ export class ThoughtPad {
 		}
 	}
 
-	// Finds the path of the Thoughts file.
-	// Notifies the user of an error if no Thoughts file is found.
-	getThoughtsFile(): string {
-		const config = vscode.workspace.getConfiguration("thoughtpad");
-		const tFC = config.get("thoughtsFile") as string | undefined;
-
-		if (!tFC || tFC === "") {
-			vscode.window.showErrorMessage("No Thoughts File configured in your Settings!");
-			return "";
+	// Creates the storage file if one does not exist, returns the location.
+	async getThoughtsFile(): Promise<vscode.Uri> {
+		// Check if our storage directory exists.
+		try {
+			await vscode.workspace.fs.readDirectory(this.storageDir);
+		} catch {
+			// Unable to open directory. Create it.
+			await vscode.workspace.fs.createDirectory(this.storageDir);
 		}
 
-		return path.resolve(tFC!);
+		return vscode.Uri.joinPath(this.storageDir, 'data.json');
 	}
 
-	// Loads the Thoughts into our data property.
-	loadThoughts(): DatedThoughts[] {
-		const data = readFileSync(this.getThoughtsFile());
-		const jsonData = JSON.parse(data.toString()) as ThoughtsFile;
-		return jsonData.dates;
+	// Loads the Thoughts into our data property and return the data.
+	async loadThoughts(): Promise<DatedThoughts[]> {
+		const dataFile = await this.getThoughtsFile();
+		try {
+			const data = await vscode.workspace.fs.readFile(dataFile);
+			const jsonData = JSON.parse(data.toString()) as ThoughtsFile;
+			this.thoughts = jsonData.dates;
+		} catch {
+			// No data file currently exists. Create a new one.
+			await vscode.workspace.fs.writeFile(dataFile, new Uint8Array());
+		}
+		return this.thoughts;
 	}
 
 	// Writes the data into the Thoughts file
-	writeThoughts(): void {
+	async writeThoughts(): Promise<void> {
 		let data = {
 			dates: this.thoughts,
 		} as ThoughtsFile;
-		writeFileSync(this.getThoughtsFile(), JSON.stringify(data, undefined, "\t"));
+		await vscode.workspace.fs.writeFile(
+			await this.getThoughtsFile(),
+			new TextEncoder().encode(JSON.stringify(data, undefined, '\t')));
 
 		this.tree.updateThoughts(this.thoughts);
 	}
