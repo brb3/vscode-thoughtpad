@@ -1,5 +1,5 @@
 {
-  "name": "thoughtpad",
+	"name": "thoughtpad",
 	"displayName": "ThoughtPad",
 	"description": "Capture your thoughts without leaving your code.",
 	"version": "0.0.1",
@@ -10,7 +10,7 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:thoughtpad.captureThought",
+		"onCommand:thoughtpad.captureThought",
 		"onView:thoughts-tree"
 	],
 	"main": "./out/extension.js",
@@ -29,35 +29,23 @@
 				"title": "Delete"
 			}
 		],
-        "configuration": [
-            {
-                "title": "ThoughtPad",
-                "properties": {
-                    "thoughtpad.thoughtsFile": {
-                        "type": "string", 
-                        "default": "",
-                        "description": "Specifies the file where ThoughtPad will store your daily Thoughts. This should be an absolute path. Thoughts are stored as a JSON object."
-                    }
-                }
-            }
-        ],
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "thoughtpad-explorer",
-                    "title": "ThoughtPad",
-                    "icon": "assets/thoughtpad.svg"
-                }
-            ]
-        },
-        "views": {
-            "thoughtpad-explorer": [
-                {
-                    "id": "thoughts-tree",
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "thoughtpad-explorer",
+					"title": "ThoughtPad",
+					"icon": "assets/thoughtpad.svg"
+				}
+			]
+		},
+		"views": {
+			"thoughtpad-explorer": [
+				{
+					"id": "thoughts-tree",
 					"name": ""
-                }
-            ]
-        },
+				}
+			]
+		},
 		"menus": {
 			"view/item/context": [
 				{
@@ -84,10 +72,10 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
+		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
+		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js"
 	},
