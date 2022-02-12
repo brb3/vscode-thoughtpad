@@ -1,33 +1,33 @@
 import * as vscode from "vscode";
 import { ThoughtPad } from "./thoughtPad";
-import { ThoughtsDataProvider } from "./thoughtsDataProvider";
+import { ThoughtsTreeDataProvider } from "./thoughtsTreeDataProvider";
 
 export async function activate(context: vscode.ExtensionContext) {
-	const tdp = new ThoughtsDataProvider();
-	const tp = new ThoughtPad(tdp, context);
+	const ttdp = new ThoughtsTreeDataProvider();
+	const app = new ThoughtPad(ttdp, context);
 
 	// Seed the data provider
-	tdp.updateThoughts(await tp.loadThoughts());
+	ttdp.updateThoughts(await app.loadThoughts());
 
 	// and register our TreeDataProvider
-	vscode.window.registerTreeDataProvider("thoughts-tree", tdp);
+	vscode.window.registerTreeDataProvider("thoughts-tree", ttdp);
 
 	// register commands
 	context.subscriptions.push(
 		vscode.commands.registerCommand("thoughtpad.captureThought", () => {
-			tp.captureThought();
+			app.captureThought();
 		})
 	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand("thoughtpad.copyEntry", (entry) => {
-			tp.copyEntry(entry);
+			app.copyEntry(entry);
 		})
 	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand("thoughtpad.deleteEntry", (entry) => {
-			tp.deleteEntry(entry);
+			app.deleteEntry(entry);
 		})
 	);
 }

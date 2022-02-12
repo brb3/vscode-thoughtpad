@@ -10,8 +10,8 @@ export class ThoughtTreeItem extends vscode.TreeItem {
 				? vscode.TreeItemCollapsibleState.None
 				: vscode.TreeItemCollapsibleState.Expanded
 		);
-		this.children = children;
 
+		this.children = children;
 		this.id = id;
 
 		if (!children) {

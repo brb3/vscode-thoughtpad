@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { DatedThoughts } from "./interfaces";
 import { ThoughtTreeItem } from "./thoughtTreeItem";
 
-export class ThoughtsDataProvider implements vscode.TreeDataProvider<ThoughtTreeItem> {
+export class ThoughtsTreeDataProvider implements vscode.TreeDataProvider<ThoughtTreeItem> {
 	constructor() {
 		this.data = [];
 	 }
