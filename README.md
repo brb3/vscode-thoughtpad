@@ -1,5 +1,14 @@
 # ThoughtPad
 
-This is a simple idea for a Visual Studio Code extension that provides a quick way to capture random thoughts.
+ A Visual Studio Code extension to provide a simple scratchpad for your thoughts without leaving your current task.
 
-This is a very early work-in-progress, and needs _basically_ an entire rewrite now that I understand the problem.
+ ## Usage
+
+ Run the command "Capture a Thought" and enter a quick thought, note, TODO item, whatever. Hit enter and it's stored.
+
+ Click the "ThoughtPad" sidebar to see a tree of all your entered thoughts, sorted by day. You can right-click a thought to copy it to the clipboard or delete it.
+
+ ## Keybinds
+
+ - `Ctrl+K T` - Runs "Capture a Thought".
+ - `Ctrl+Shift+A` - Shows the ThoughtPad sidebar.

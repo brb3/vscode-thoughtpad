@@ -1,8 +1,15 @@
 {
-  "name": "thoughtpad",
+	"name": "thoughtpad",
 	"displayName": "ThoughtPad",
 	"description": "Capture your thoughts without leaving your code.",
+	"publisher": "brb3",
+	"license": "MIT",
 	"version": "0.0.1",
+	"homepage": "https://github.com/brb3/vscode-thoughtpad",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/brb3/vscode-thoughtpad.git"
+	},
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -10,7 +17,7 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:thoughtpad.captureThought",
+		"onCommand:thoughtpad.captureThought",
 		"onView:thoughts-tree"
 	],
 	"main": "./out/extension.js",
@@ -29,35 +36,23 @@
 				"title": "Delete"
 			}
 		],
-        "configuration": [
-            {
-                "title": "ThoughtPad",
-                "properties": {
-                    "thoughtpad.thoughtsFile": {
-                        "type": "string", 
-                        "default": "",
-                        "description": "Specifies the file where ThoughtPad will store your daily Thoughts. This should be an absolute path. Thoughts are stored as a JSON object."
-                    }
-                }
-            }
-        ],
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "thoughtpad-explorer",
-                    "title": "ThoughtPad",
-                    "icon": "assets/thoughtpad.svg"
-                }
-            ]
-        },
-        "views": {
-            "thoughtpad-explorer": [
-                {
-                    "id": "thoughts-tree",
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "thoughtpad-explorer",
+					"title": "ThoughtPad",
+					"icon": "assets/thoughtpad.svg"
+				}
+			]
+		},
+		"views": {
+			"thoughtpad-explorer": [
+				{
+					"id": "thoughts-tree",
 					"name": ""
-                }
-            ]
-        },
+				}
+			]
+		},
 		"menus": {
 			"view/item/context": [
 				{
@@ -84,10 +79,10 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
+		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
+		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js"
 	},
@@ -95,18 +90,18 @@
 		"uuid": "8.3.2"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.64.0",
 		"@types/glob": "^7.2.0",
 		"@types/mocha": "^9.0.0",
-		"@types/node": "14.x",
+		"@types/node": "^14.18.11",
 		"@types/uuid": "8.3.4",
-		"@typescript-eslint/eslint-plugin": "^5.9.1",
-		"@typescript-eslint/parser": "^5.9.1",
+		"@types/vscode": "^1.64.0",
+		"@typescript-eslint/eslint-plugin": "^5.11.0",
+		"@typescript-eslint/parser": "^5.11.0",
+		"@vscode/test-electron": "^2.0.3",
 		"eslint": "^8.6.0",
 		"glob": "^7.2.0",
 		"mocha": "^9.1.3",
-		"typescript": "^4.5.4",
-		"@vscode/test-electron": "^2.0.3"
+		"typescript": "^4.5.4"
 	},
 	"prettier": {
 		"useTabs": true,

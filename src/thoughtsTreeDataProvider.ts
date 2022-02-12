@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { DatedThoughts, ThoughtsFile } from "./interfaces";
+import { Day } from "./interfaces";
 import { ThoughtTreeItem } from "./thoughtTreeItem";
 
-export class ThoughtsDataProvider implements vscode.TreeDataProvider<ThoughtTreeItem> {
+export class ThoughtsTreeDataProvider implements vscode.TreeDataProvider<ThoughtTreeItem> {
 	constructor() {
 		this.data = [];
 	 }
@@ -26,12 +26,13 @@ export class ThoughtsDataProvider implements vscode.TreeDataProvider<ThoughtTree
 		return element.children;
 	}
 
-	updateThoughts(datedThoughts: DatedThoughts[]): void {
+	updateThoughts(days: Day[]): void {
 		this.data = [] as ThoughtTreeItem[];
-		datedThoughts.forEach((d) => {
+		days.forEach((d) => {
+			const formattedDate = new Date(d.timestamp).toDateString();
 			this.data.push(
 				new ThoughtTreeItem(
-					d.day,
+					formattedDate,
 					"",
 					undefined,
 					d.thoughts.map((t) => new ThoughtTreeItem(t.message, t.id, t.timestamp, undefined))
