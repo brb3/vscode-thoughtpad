@@ -5,6 +5,11 @@
 	"publisher": "brb3",
 	"license": "MIT",
 	"version": "0.0.1",
+	"homepage": "https://github.com/brb3/vscode-thoughtpad",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/brb3/vscode-thoughtpad.git"
+	},
 	"engines": {
 		"vscode": "^1.64.0"
 	},
