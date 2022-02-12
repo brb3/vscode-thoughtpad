@@ -29,10 +29,10 @@ export class ThoughtsTreeDataProvider implements vscode.TreeDataProvider<Thought
 	updateThoughts(days: Day[]): void {
 		this.data = [] as ThoughtTreeItem[];
 		days.forEach((d) => {
-			const timestamp = new Date(d.timestamp);
+			const formattedDate = new Date(d.timestamp).toDateString();
 			this.data.push(
 				new ThoughtTreeItem(
-					timestamp.toISOString(),
+					formattedDate,
 					"",
 					undefined,
 					d.thoughts.map((t) => new ThoughtTreeItem(t.message, t.id, t.timestamp, undefined))
