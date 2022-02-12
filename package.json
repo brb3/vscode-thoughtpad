@@ -2,6 +2,8 @@
 	"name": "thoughtpad",
 	"displayName": "ThoughtPad",
 	"description": "Capture your thoughts without leaving your code.",
+	"publisher": "brb3",
+	"license": "MIT",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.64.0"
