@@ -5,10 +5,10 @@ export interface Thought {
 }
 
 export interface ThoughtsFile {
-	dates: DatedThoughts[];
+	dates: Day[];
 }
 
-export interface DatedThoughts {
-	day: string;
+export interface Day {
+	timestamp: Date;
 	thoughts: Thought[];
 }

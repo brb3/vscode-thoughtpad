@@ -7,7 +7,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const app = new ThoughtPad(ttdp, context);
 
 	// Seed the data provider
-	ttdp.updateThoughts(await app.loadThoughts());
+	ttdp.updateThoughts(await app.loadData());
 
 	// and register our TreeDataProvider
 	vscode.window.registerTreeDataProvider("thoughts-tree", ttdp);

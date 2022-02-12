@@ -1,20 +1,20 @@
 import * as vscode from "vscode";
-import { ThoughtsDataProvider } from "./thoughtsDataProvider";
-import { DatedThoughts, Thought, ThoughtsFile } from "./interfaces";
+import { ThoughtsTreeDataProvider } from "./thoughtsTreeDataProvider";
+import { Day, Thought, ThoughtsFile } from "./interfaces";
 import { v4 as uuidv4 } from "uuid";
 import { TextEncoder } from "util";
 
 export class ThoughtPad {
-	constructor(treeView: ThoughtsDataProvider, context: vscode.ExtensionContext) {
+	constructor(treeView: ThoughtsTreeDataProvider, context: vscode.ExtensionContext) {
 		this.storageDir = context.globalStorageUri;
 		this.tree = treeView;
 	}
 	storageDir: vscode.Uri;
-	tree: ThoughtsDataProvider;
-	thoughts = [] as DatedThoughts[];
+	tree: ThoughtsTreeDataProvider;
+	days = [] as Day[];
 
 	// Captures a Thought
-	// Opens a dialog for the user to enter a thought, then adds it to the data and calls writeThoughts()
+	// Opens a dialog for the user to enter a thought, then adds it to the data and calls saveData()
 	async captureThought(): Promise<void> {
 		const message = await vscode.window.showInputBox({
 			title: "Thought to record",
@@ -22,25 +22,24 @@ export class ThoughtPad {
 		});
 
 		if (message) {
+			const now = new Date();
 			let thought = {
 				id: uuidv4(),
-				timestamp: new Date(),
+				timestamp: now, 
 				message,
 			} as Thought;
 
-			const day = thought.timestamp.toISOString().slice(0, 10);
-
-			let datedThoughtIndex = this.thoughts.findIndex((dt) => dt.day === day);
-			if (datedThoughtIndex < 0) {
-				this.thoughts.push({
-					day,
+			let daysIndex = this.days.findIndex((d) => this.sameDay(new Date(d.timestamp), thought.timestamp));
+			if (daysIndex < 0) {
+				this.days.push({
+					timestamp: now,
 					thoughts: [thought],
-				});
+				} as Day);
 			} else {
-				this.thoughts[datedThoughtIndex].thoughts.push(thought);
+				this.days[daysIndex].thoughts.push(thought);
 			}
 
-			this.writeThoughts();
+			this.saveData();
 		} else {
 			vscode.window.showWarningMessage("No thought provided.");
 		}
@@ -49,7 +48,7 @@ export class ThoughtPad {
 	// Copies an entry (thought) message into the system clipboard.
 	async copyEntry(entry: any): Promise<void> {
 		if (entry) {
-			this.thoughts.forEach((dt) => {
+			this.days.forEach((dt) => {
 				const index = dt.thoughts.findIndex((t) => {
 					return t.id === entry.id;
 				});
@@ -60,14 +59,14 @@ export class ThoughtPad {
 		}
 	}
 
-	// Deletes an entry (thought) from the data and calls writeThoughts()
+	// Deletes an entry (thought) from the data and calls saveData()
 	async deleteEntry(entry: any): Promise<void> {
 		if (entry) {
 			vscode.window
 				.showInformationMessage("Are you sure you want to delete this entry?", ...["Yes", "No"])
 				.then((a) => {
 					if (a === "Yes") {
-						this.thoughts.forEach((dt, dti) => {
+						this.days.forEach((dt, dti) => {
 							const index = dt.thoughts.findIndex((t) => {
 								return t.id === entry.id;
 							});
@@ -77,11 +76,11 @@ export class ThoughtPad {
 
 							// If removing this item reduces the size of dt to 0, remove it too
 							if (dt.thoughts.length === 0) {
-								this.thoughts.splice(dti, 1);
+								this.days.splice(dti, 1);
 							}
 						});
 
-						this.writeThoughts();
+						this.saveData();
 					}
 				});
 		}
@@ -101,28 +100,36 @@ export class ThoughtPad {
 	}
 
 	// Loads the Thoughts into our data property and return the data.
-	async loadThoughts(): Promise<DatedThoughts[]> {
+	async loadData(): Promise<Day[]> {
 		const dataFile = await this.getThoughtsFile();
 		try {
 			const data = await vscode.workspace.fs.readFile(dataFile);
 			const jsonData = JSON.parse(data.toString()) as ThoughtsFile;
-			this.thoughts = jsonData.dates;
+			this.days = jsonData.dates;
 		} catch {
 			// No data file currently exists. Create a new one.
 			await vscode.workspace.fs.writeFile(dataFile, new Uint8Array());
 		}
-		return this.thoughts;
+		return this.days;
 	}
 
 	// Writes the data into the Thoughts file
-	async writeThoughts(): Promise<void> {
+	async saveData(): Promise<void> {
 		let data = {
-			dates: this.thoughts,
+			dates: this.days,
 		} as ThoughtsFile;
 		await vscode.workspace.fs.writeFile(
 			await this.getThoughtsFile(),
 			new TextEncoder().encode(JSON.stringify(data, undefined, '\t')));
 
-		this.tree.updateThoughts(this.thoughts);
+		this.tree.updateThoughts(this.days);
+	}
+
+	sameDay(a: Date, b: Date): boolean {
+		return (
+			a.getDate() === b.getDate() &&
+			a.getMonth() === b.getMonth() &&
+			a.getFullYear() === b.getFullYear()
+		);
 	}
 }
