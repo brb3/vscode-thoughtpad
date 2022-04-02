@@ -21,6 +21,8 @@ export class ThoughtPad {
 			ignoreFocusOut: true,
 		});
 
+		// Refresh our currently loaded data from disk before updating it.
+		await this.loadData();
 		if (message) {
 			const now = new Date();
 			let thought = {
