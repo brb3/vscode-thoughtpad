@@ -21,6 +21,8 @@ export class ThoughtPad {
 			ignoreFocusOut: true,
 		});
 
+		// Refresh our currently loaded data from disk before updating it.
+		await this.loadData();
 		if (message) {
 			const now = new Date();
 			let thought = {
@@ -87,7 +89,7 @@ export class ThoughtPad {
 	}
 
 	// Creates the storage file if one does not exist, returns the location.
-	async getThoughtsFile(): Promise<vscode.Uri> {
+	async getThoughtsFileUri(): Promise<vscode.Uri> {
 		// Check if our storage directory exists.
 		try {
 			await vscode.workspace.fs.readDirectory(this.storageDir);
@@ -96,20 +98,28 @@ export class ThoughtPad {
 			await vscode.workspace.fs.createDirectory(this.storageDir);
 		}
 
-		return vscode.Uri.joinPath(this.storageDir, 'data.json');
+		const thoughtsFile = vscode.Uri.joinPath(this.storageDir, 'data.json');
+
+		// Check if the storage file itself exists
+		try {
+			await vscode.workspace.fs.stat(thoughtsFile);
+		} catch {
+			await vscode.workspace.fs.writeFile(
+				thoughtsFile,
+				new TextEncoder().encode(JSON.stringify({ dates: [] }, undefined, "\t"))
+			);
+		}
+
+		return thoughtsFile;
 	}
 
 	// Loads the Thoughts into our data property and return the data.
 	async loadData(): Promise<Day[]> {
-		const dataFile = await this.getThoughtsFile();
-		try {
-			const data = await vscode.workspace.fs.readFile(dataFile);
-			const jsonData = JSON.parse(data.toString()) as ThoughtsFile;
-			this.days = jsonData.dates;
-		} catch {
-			// No data file currently exists. Create a new one.
-			await vscode.workspace.fs.writeFile(dataFile, new Uint8Array());
-		}
+		const dataFile = await this.getThoughtsFileUri();
+		const data = await vscode.workspace.fs.readFile(dataFile);
+		const jsonData = JSON.parse(data.toString()) as ThoughtsFile;
+		this.days = jsonData.dates;
+
 		return this.days;
 	}
 
@@ -118,8 +128,9 @@ export class ThoughtPad {
 		let data = {
 			dates: this.days,
 		} as ThoughtsFile;
+
 		await vscode.workspace.fs.writeFile(
-			await this.getThoughtsFile(),
+			await this.getThoughtsFileUri(),
 			new TextEncoder().encode(JSON.stringify(data, undefined, '\t')));
 
 		this.tree.updateThoughts(this.days);
